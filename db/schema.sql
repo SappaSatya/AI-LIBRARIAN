@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS book_inventory (
                           CHECK (status IN ('available','checked_out','reserved','lost','maintenance')),
     barcode           TEXT UNIQUE,
     acquired_at       DATE,
+    due_date          DATE,
     created_at        TIMESTAMPTZ DEFAULT NOW(),
     updated_at        TIMESTAMPTZ DEFAULT NOW()
 );

@@ -32,9 +32,18 @@ class InventoryOut(BaseModel):
     id:             UUID
     copy_number:    int
     status:         str
+    due_date:       Optional[str] = None
+    borrowed_by:    Optional[str] = None
     shelf_location: Optional[ShelfLocationOut] = None
 
     model_config = {"from_attributes": True}
+
+    @classmethod
+    def model_validate(cls, obj, **kwargs):
+        instance = super().model_validate(obj, **kwargs)
+        if hasattr(obj, "due_date") and obj.due_date:
+            instance.due_date = obj.due_date.strftime("%B %d, %Y")
+        return instance
 
 
 class BookSummary(BaseModel):
@@ -58,8 +67,36 @@ class BookDetail(BookSummary):
 
 
 class BookSearchResult(BookSummary):
-    similarity: Optional[float] = None
-    reason:     Optional[str] = None
+    similarity:  Optional[float] = None
+    reason:      Optional[str] = None
+    inventory:   list[InventoryOut] = []
+    description: Optional[str] = None
+    publisher:   Optional[str] = None
+    page_count:  Optional[int] = None
+
+
+# ── Members ─────────────────────────────────────────────────────────────────
+
+class MemberRegister(BaseModel):
+    g_number: str
+    name:     str
+    email:    Optional[str] = None
+    purpose:  Optional[str] = None
+
+
+class MemberOut(BaseModel):
+    g_number:        str
+    name:            str
+    email:           Optional[str] = None
+    purpose:         Optional[str] = None
+    active_borrows:  int = 0
+    borrow_limit:    int = 3
+
+    model_config = {"from_attributes": True}
+
+
+class BorrowRequest(BaseModel):
+    g_number: str
 
 
 # ── Chat ────────────────────────────────────────────────────────────────────

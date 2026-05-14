@@ -2,6 +2,24 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 
+// Browser Speech API types not in default TS lib
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognitionInstance;
+    webkitSpeechRecognition: new () => SpeechRecognitionInstance;
+  }
+}
+interface SpeechRecognitionInstance extends EventTarget {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start(): void;
+  stop(): void;
+  onresult: ((e: { results: { 0: { 0: { transcript: string } } } }) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+}
+
 type Status = "idle" | "listening" | "speaking";
 
 interface UseVoiceOptions {
@@ -11,7 +29,7 @@ interface UseVoiceOptions {
 export function useVoice({ onTranscript }: UseVoiceOptions) {
   const [status, setStatus] = useState<Status>("idle");
   const [supported, setSupported] = useState(true);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
 
   useEffect(() => {
@@ -27,7 +45,7 @@ export function useVoice({ onTranscript }: UseVoiceOptions) {
     rec.continuous = false;
     rec.interimResults = false;
 
-    rec.onresult = (e: SpeechRecognitionEvent) => {
+    rec.onresult = (e: { results: { 0: { 0: { transcript: string } } } }) => {
       const transcript = e.results[0][0].transcript.trim();
       if (transcript) onTranscript(transcript);
     };

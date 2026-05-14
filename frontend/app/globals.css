@@ -24,3 +24,62 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ── Scrollbar hide ─────────────────────────────────────────────────────── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* ── Seamless marquee ───────────────────────────────────────────────────── */
+/*
+  Each row has N items duplicated → 2N items total.
+  We shift by -50% (= exactly N items) so the loop is seamless.
+  item width = 88px, gap = 12px, 10 items → track = (88+12)*10 = 1000px
+  At -50% of 2000px total = -1000px = same visual as start → perfect loop.
+*/
+@keyframes scroll-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes scroll-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+.marquee-left {
+  animation: scroll-left 30s linear infinite;
+  will-change: transform;
+  /* GPU layer */
+  transform: translateZ(0);
+}
+
+.marquee-right {
+  animation: scroll-right 32s linear infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.marquee-left:hover,
+.marquee-right:hover {
+  animation-play-state: paused;
+}
+
+/* ── Architecture flow dot ──────────────────────────────────────────────── */
+@keyframes flow-dot {
+  0%   { left: -8px; opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { left: calc(100% + 8px); opacity: 0; }
+}
+.flow-dot {
+  position: absolute;
+  animation: flow-dot 2s linear infinite;
+  top: 50%;
+  transform: translateY(-50%);
+}

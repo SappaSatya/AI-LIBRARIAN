@@ -1,0 +1,142 @@
+[
+  {
+    "id": "00b4ecbc-5a8a-4c0d-92bf-fc79457fe743",
+    "title": "Learning Perl",
+    "authors": "Randal L. Schwartz, Tom Phoenix, brian d foy",
+    "year": 1993,
+    "cover": "/covers/01.jpg"
+  },
+  {
+    "id": "014a3e26-a2eb-4f67-bccf-1fd054a64d11",
+    "title": "Lincoln's Melancholy",
+    "authors": "Joshua Wolf Shenk",
+    "year": 2005,
+    "cover": "/covers/02.jpg"
+  },
+  {
+    "id": "10b8b5f6-74fa-4935-bff9-0f0727dc6c4d",
+    "title": "A Book of Abstract Algebra",
+    "authors": "Charles C. Pinter",
+    "year": 1982,
+    "cover": "/covers/03.jpg"
+  },
+  {
+    "id": "286cc865-5f1b-4e59-819d-cb39a325fbfb",
+    "title": "A Brief History of Computing",
+    "authors": "Gerard O'Regan",
+    "year": 2012,
+    "cover": "/covers/04.jpg"
+  },
+  {
+    "id": "378c9641-71db-40fe-a345-b88b169cb0e3",
+    "title": "9-11",
+    "authors": "Noam Chomsky",
+    "year": 2001,
+    "cover": "/covers/05.jpg"
+  },
+  {
+    "id": "3d8871f6-e050-4e26-bd68-70ef15e29a89",
+    "title": "Ten Days That Shook the World",
+    "authors": "John Reed",
+    "year": 1919,
+    "cover": "/covers/06.jpg"
+  },
+  {
+    "id": "5c44a526-07bc-4858-9bd7-518eb49ff247",
+    "title": "On Liberty",
+    "authors": "John Stuart Mill",
+    "year": 1859,
+    "cover": "/covers/07.jpg"
+  },
+  {
+    "id": "606d96ac-b3be-4016-bf34-21b74f847d09",
+    "title": "A Short History of the Civil War",
+    "authors": "Fletcher Pratt",
+    "year": 1948,
+    "cover": "/covers/08.jpg"
+  },
+  {
+    "id": "660835de-cb09-4dc5-832a-7552b63913f5",
+    "title": "The Art of War",
+    "authors": "Lionel Giles, Stephen F. Kaufman, \u5b59\u6b66 (Sun Tzu)",
+    "year": 1900,
+    "cover": "/covers/09.jpg"
+  },
+  {
+    "id": "89363328-463e-4859-b0c3-433af0140b2b",
+    "title": "A Life on Our Planet",
+    "authors": "David Attenborough, Jonnie Hughes",
+    "year": 2020,
+    "cover": "/covers/10.jpg"
+  },
+  {
+    "id": "9158ca1f-d530-4ee3-91ef-aa2333eec7fb",
+    "title": "Nicomachean Ethics",
+    "authors": "Aristotle",
+    "year": 1558,
+    "cover": "/covers/11.jpg"
+  },
+  {
+    "id": "a5a78878-0fc8-4f12-99d4-f6648c8d3dc5",
+    "title": "Utopia",
+    "authors": "Thomas More",
+    "year": 1518,
+    "cover": "/covers/12.jpg"
+  },
+  {
+    "id": "b21940f6-9c6f-49ef-8f03-f3e8f1367b4c",
+    "title": "A Mind to Murder",
+    "authors": "P. D. James",
+    "year": 1963,
+    "cover": "/covers/13.jpg"
+  },
+  {
+    "id": "e20aca11-bde6-4948-b312-5e3ba2170016",
+    "title": "A first course in statistical programming with R",
+    "authors": "Duncan J. Murdoch, John Braun, W. John Braun",
+    "year": 2007,
+    "cover": "/covers/14.jpg"
+  },
+  {
+    "id": "e400f7aa-ccbb-4550-81e6-e51e81bf731c",
+    "title": "A woman looking at men looking at women",
+    "authors": "Siri Hustvedt",
+    "year": 2013,
+    "cover": "/covers/15.jpg"
+  },
+  {
+    "id": "f410d3b6-c078-4fd1-a44c-d9da3add89fb",
+    "title": "Animal Farm",
+    "authors": "George Orwell",
+    "year": 1945,
+    "cover": "/covers/16.jpg"
+  },
+  {
+    "id": "f72f8295-af63-4df1-8a12-8c385c6950b1",
+    "title": "Think Stats",
+    "authors": "Allen B. Downey",
+    "year": 2011,
+    "cover": "/covers/17.jpg"
+  },
+  {
+    "id": "fd807350-0745-43c2-9fc9-93f83f122e64",
+    "title": "Nineteen Eighty-Four",
+    "authors": "George Orwell",
+    "year": 1949,
+    "cover": "/covers/18.jpg"
+  },
+  {
+    "id": "fff5104d-7076-427a-8ccc-91a075598011",
+    "title": "A Midsummer Night's Dream",
+    "authors": "William Shakespeare",
+    "year": 1600,
+    "cover": "/covers/19.jpg"
+  },
+  {
+    "id": "0006a884-e621-47ba-9b72-79bf3d80908d",
+    "title": "Women and economics",
+    "authors": "Charlotte Perkins Gilman, Michael S. Kimmel, Tushar Lohia",
+    "year": 1898,
+    "cover": "/covers/20.jpg"
+  }
+]

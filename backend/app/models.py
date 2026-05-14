@@ -97,6 +97,17 @@ class BookCategory(Base):
     category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id", ondelete="CASCADE"), primary_key=True)
 
 
+class LibraryMember(Base):
+    __tablename__ = "library_members"
+
+    g_number   = Column(Text, primary_key=True)
+    name       = Column(Text, nullable=False)
+    email      = Column(Text)
+    purpose    = Column(Text)
+    created_at = Column(TIMESTAMP(timezone=True))
+    updated_at = Column(TIMESTAMP(timezone=True))
+
+
 class BookInventory(Base):
     __tablename__ = "book_inventory"
 
@@ -107,6 +118,8 @@ class BookInventory(Base):
     status            = Column(Text, nullable=False, default="available")
     barcode           = Column(Text, unique=True)
     acquired_at       = Column(Date)
+    due_date          = Column(Date, nullable=True)
+    borrowed_by       = Column(Text, nullable=True)
     created_at        = Column(TIMESTAMP(timezone=True))
     updated_at        = Column(TIMESTAMP(timezone=True))
 

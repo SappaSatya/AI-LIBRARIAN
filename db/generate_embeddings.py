@@ -9,6 +9,8 @@ Usage:
 Looks for credentials in backend/.env, then falls back to environment variables.
 """
 
+from __future__ import annotations
+
 import os
 import sys
 import time

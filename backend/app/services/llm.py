@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import json
 from openai import OpenAI
@@ -20,18 +22,35 @@ def _format_book_context(books) -> str:
     lines = []
     for i, book in enumerate(books, 1):
         authors = ", ".join(a.name for a in book.authors) or "Unknown"
-        categories = ", ".join(c.name for c in book.categories) or "General"
-        shelf = ""
+
+        copy_lines = []
         for inv in book.inventory:
-            if inv.shelf_location:
-                sl = inv.shelf_location
-                shelf = f"Floor {sl.floor_number}, {sl.section_name}, Shelf {sl.shelf_code}"
-                break
-        status = book.inventory[0].status if book.inventory else "unknown"
+            if inv.status in ("lost", "maintenance"):
+                continue
+            loc = inv.shelf_location
+            location_str = (
+                f"Floor {loc.floor_number} · {loc.section_name} · Shelf {loc.shelf_code}"
+                if loc else "Location TBD"
+            )
+            if inv.status == "available":
+                copy_lines.append(
+                    f"Copy {inv.copy_number}: AVAILABLE @ {location_str}"
+                )
+            elif inv.status == "checked_out":
+                due = inv.due_date.strftime("%B %d, %Y") if inv.due_date else "unknown date"
+                copy_lines.append(
+                    f"Copy {inv.copy_number}: CHECKED OUT (due back {due}) — normally @ {location_str}"
+                )
+            elif inv.status == "reserved":
+                copy_lines.append(
+                    f"Copy {inv.copy_number}: RESERVED @ {location_str}"
+                )
+
+        availability = "; ".join(copy_lines) if copy_lines else "status unknown"
+
         lines.append(
             f"{i}. \"{book.title}\" by {authors} ({book.published_year or 'n/a'})"
-            f"\n   Category: {categories}"
-            f"\n   Location: {shelf or 'unknown'} | Status: {status}"
+            f"\n   Availability: {availability}"
             f"\n   Description: {(book.description or '')[:200]}"
         )
     return "\n\n".join(lines)
