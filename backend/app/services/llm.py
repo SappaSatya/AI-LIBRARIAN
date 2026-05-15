@@ -78,7 +78,8 @@ def chat_with_books(
         f"--- Relevant books from the online library ---\n{book_context}\n\n"
         "After your conversational reply, output a JSON block on its own line like:\n"
         '```reasons\n["reason for book 1", "reason for book 2", ...]\n```\n'
-        "One short reason per book (same order). Omit if no books."
+        "Each reason should be 1-2 sentences: why it fits the user's request + difficulty level "
+        "(Beginner / Intermediate / Advanced). Same order as books above. Omit block if no books."
     )
     messages.append({"role": "user", "content": augmented_message})
 
