@@ -43,15 +43,59 @@ The database lives on **Neon (serverless PostgreSQL)** and contains real academi
 
 ---
 
-## Subject Categories (25 University Subjects)
+## Book Categories (26 University Subjects)
 
-| Floor | Subjects |
-|-------|----------|
-| Floor 1 | Mathematics, Computer Science, Cybersecurity, Artificial Intelligence, Data Science |
-| Floor 2 | Physics, Chemistry, Environmental Science |
-| Floor 3 | Mechanical Engineering, Aerospace Engineering, Electrical Engineering, Civil Engineering, Bioengineering |
-| Floor 4 | Biology, Neuroscience, Psychology, Public Health |
-| Floor 5 | English & Writing, Economics, Political Science, History, Philosophy, Business, Law, Research Methods |
+The library contains **~8,000 real academic books** across 26 subject categories, sourced from the Open Library API and organised across 5 floors.
+
+### Floor 1 — Computer Science & Mathematics
+
+| Category | Topics Covered |
+|---|---|
+| **Mathematics** | Calculus, linear algebra, number theory, topology, geometry, combinatorics, differential equations, real & complex analysis |
+| **Computer Science** | Algorithms, data structures, OS, compilers, software engineering, distributed systems, cloud computing, computer networks |
+| **Cybersecurity** | Network security, cryptography, ethical hacking, information security, digital forensics |
+| **Artificial Intelligence** | Machine learning, deep learning, NLP, computer vision, reinforcement learning, robotics |
+| **Data Science** | Data analysis, big data, statistics, statistical learning, data visualization, data mining |
+
+### Floor 2 — Physical Sciences
+
+| Category | Topics Covered |
+|---|---|
+| **Physics** | Classical mechanics, thermodynamics, electromagnetism, quantum mechanics, astrophysics, nuclear physics, cosmology |
+| **Chemistry** | Organic, inorganic, physical, analytical, biochemistry, polymer chemistry, electrochemistry |
+| **Environmental Science** | Ecology, climate change, environmental engineering, conservation biology, sustainability |
+
+### Floor 3 — Engineering
+
+| Category | Topics Covered |
+|---|---|
+| **Mechanical Engineering** | Fluid mechanics, heat transfer, solid mechanics, materials science, manufacturing, vibrations |
+| **Aerospace Engineering** | Aerodynamics, rocket propulsion, spacecraft design, flight dynamics, orbital mechanics, avionics |
+| **Electrical Engineering** | Electronics, signal processing, control systems, power systems, telecommunications, microelectronics, photonics |
+| **Civil Engineering** | Structural engineering, geotechnical, transportation, hydraulics, concrete structures |
+| **Bioengineering** | Biomedical devices, biomaterials, tissue engineering, bioinformatics, systems biology |
+
+### Floor 4 — Life Sciences & Health
+
+| Category | Topics Covered |
+|---|---|
+| **Biology** | Molecular biology, cell biology, genetics, microbiology, ecology, evolutionary biology, immunology, zoology, botany |
+| **Neuroscience** | Cognitive science, neuroanatomy, neurophysiology, computational neuroscience, psychiatry |
+| **Psychology** | Cognitive, social, developmental, clinical, and behavioral psychology |
+| **Public Health** | Epidemiology, global health, health policy, biostatistics, environmental health |
+
+### Floor 5 — Humanities, Social Sciences & Reference
+
+| Category | Topics Covered |
+|---|---|
+| **History** | American history, world history, ancient & modern history, military history, history of science & technology |
+| **Political Science** | International relations, public policy, comparative politics, political theory, diplomacy |
+| **Philosophy** | Logic, ethics, epistemology, metaphysics, philosophy of mind, political philosophy |
+| **Economics** | Micro/macroeconomics, econometrics, game theory, behavioral economics, international economics |
+| **Business** | Finance, entrepreneurship, marketing, accounting, strategic & operations management |
+| **Law** | Constitutional law, international law, criminal law, civil law, intellectual property |
+| **English & Writing** | Academic & creative writing, English literature, linguistics, rhetoric, technical writing |
+| **Research Methods** | Scientific method, experimental design, qualitative & quantitative research, academic skills |
 
 ---
 
