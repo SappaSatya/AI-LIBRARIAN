@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 
-// Browser Speech API types not in default TS lib
 declare global {
   interface Window {
     SpeechRecognition: new () => SpeechRecognitionInstance;
@@ -17,51 +16,90 @@ interface SpeechRecognitionInstance extends EventTarget {
   stop(): void;
   onresult: ((e: { results: { 0: { 0: { transcript: string } } } }) => void) | null;
   onend: (() => void) | null;
-  onerror: (() => void) | null;
+  onerror: ((e: { error: string }) => void) | null;
 }
 
 type Status = "idle" | "listening" | "speaking";
 
 interface UseVoiceOptions {
   onTranscript: (text: string) => void;
+  onSpeakEnd?: () => void;
 }
 
-export function useVoice({ onTranscript }: UseVoiceOptions) {
-  const [status, setStatus] = useState<Status>("idle");
-  const [supported, setSupported] = useState(true);
-  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const synthRef = useRef<SpeechSynthesis | null>(null);
+export function useVoice({ onTranscript, onSpeakEnd }: UseVoiceOptions) {
+  const [status, setStatus]         = useState<Status>("idle");
+  const [supported, setSupported]   = useState(true);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+
+  const recognitionRef  = useRef<SpeechRecognitionInstance | null>(null);
+  const synthRef        = useRef<SpeechSynthesis | null>(null);
+  const SpeechRecCtor   = useRef<(new () => SpeechRecognitionInstance) | null>(null);
+  const micStreamRef    = useRef<MediaStream | null>(null);
+  const onTranscriptRef = useRef(onTranscript);
+  const onSpeakEndRef   = useRef(onSpeakEnd);
+  useEffect(() => { onTranscriptRef.current = onTranscript; }, [onTranscript]);
+  useEffect(() => { onSpeakEndRef.current   = onSpeakEnd;   }, [onSpeakEnd]);
 
   useEffect(() => {
-    const SpeechRec =
+    const Ctor =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRec || !window.speechSynthesis) {
+    if (!Ctor || !window.speechSynthesis) {
       setSupported(false);
       return;
     }
+    SpeechRecCtor.current = Ctor;
+    synthRef.current = window.speechSynthesis;
+  }, []);
 
-    const rec = new SpeechRec();
-    rec.lang = "en-US";
-    rec.continuous = false;
+  const startListening = useCallback(async () => {
+    if (!SpeechRecCtor.current || status !== "idle") return;
+    setVoiceError(null);
+    window.speechSynthesis?.cancel();
+
+    // Explicitly acquire mic permission first — prevents the "network" error
+    // that Chrome throws when SpeechRecognition starts before permission is granted
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Stop the tracks immediately; we only needed this to warm up permission
+      stream.getTracks().forEach((t) => t.stop());
+      micStreamRef.current = null;
+    } catch {
+      setVoiceError("Microphone access denied — allow mic in browser settings and try again");
+      return;
+    }
+
+    const rec = new SpeechRecCtor.current();
+    rec.lang           = "en-US";
+    rec.continuous     = false;
     rec.interimResults = false;
 
-    rec.onresult = (e: { results: { 0: { 0: { transcript: string } } } }) => {
+    rec.onresult = (e) => {
       const transcript = e.results[0][0].transcript.trim();
-      if (transcript) onTranscript(transcript);
+      if (transcript) onTranscriptRef.current(transcript);
+    };
+    rec.onend = () => setStatus("idle");
+    rec.onerror = (e) => {
+      if (e.error !== "no-speech") {
+        setVoiceError(
+          e.error === "not-allowed"
+            ? "Mic permission denied — allow microphone access in browser settings"
+            : e.error === "network"
+            ? "Network error — make sure you're connected to the internet (Chrome requires it for speech recognition)"
+            : `Voice error: ${e.error}`
+        );
+      }
+      setStatus("idle");
     };
 
-    rec.onend = () => setStatus("idle");
-    rec.onerror = () => setStatus("idle");
-
     recognitionRef.current = rec;
-    synthRef.current = window.speechSynthesis;
-  }, [onTranscript]);
-
-  const startListening = useCallback(() => {
-    if (!recognitionRef.current || status !== "idle") return;
-    window.speechSynthesis?.cancel();
     setStatus("listening");
-    recognitionRef.current.start();
+    try {
+      rec.start();
+    } catch (err) {
+      console.error("rec.start() threw:", err);
+      setVoiceError("Could not start microphone. Try again.");
+      setStatus("idle");
+    }
   }, [status]);
 
   const stopListening = useCallback(() => {
@@ -72,11 +110,11 @@ export function useVoice({ onTranscript }: UseVoiceOptions) {
   const speak = useCallback((text: string) => {
     if (!synthRef.current) return;
     synthRef.current.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
+    const utterance   = new SpeechSynthesisUtterance(text);
+    utterance.rate    = 1.0;
+    utterance.pitch   = 1.0;
     utterance.onstart = () => setStatus("speaking");
-    utterance.onend = () => setStatus("idle");
+    utterance.onend   = () => { setStatus("idle"); onSpeakEndRef.current?.(); };
     utterance.onerror = () => setStatus("idle");
     synthRef.current.speak(utterance);
   }, []);
@@ -86,5 +124,5 @@ export function useVoice({ onTranscript }: UseVoiceOptions) {
     setStatus("idle");
   }, []);
 
-  return { status, supported, startListening, stopListening, speak, stopSpeaking };
+  return { status, supported, voiceError, startListening, stopListening, speak, stopSpeaking };
 }

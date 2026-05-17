@@ -32,15 +32,18 @@ interface SidebarProps {
 export default function Sidebar(_props: SidebarProps) {
   const [borrows, setBorrows] = useState<BorrowRecord[]>([]);
   const [gNumber, setGNumber] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const g = localStorage.getItem("lib_g_number") ?? "";
     setGNumber(g);
     if (!g) return;
+    setLoading(true);
     fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/members/${g}/borrows`)
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then((d) => setBorrows(Array.isArray(d.borrows) ? d.borrows : []))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -144,7 +147,26 @@ export default function Sidebar(_props: SidebarProps) {
 
         {/* Borrow list */}
         <div className="flex-1 overflow-y-auto scrollbar-hide py-1">
-          {borrows.length === 0 ? (
+          {loading ? (
+            <ul className="flex flex-col">
+              {[0, 1, 2].map((i) => (
+                <li key={i} className="px-3 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <div className="flex items-start gap-2">
+                    <div className="w-7 h-10 rounded-md flex-shrink-0 animate-pulse"
+                      style={{ background: "rgba(255,255,255,0.08)" }} />
+                    <div className="flex-1 flex flex-col gap-1.5 pt-1">
+                      <div className="h-2.5 rounded animate-pulse w-full"
+                        style={{ background: "rgba(255,255,255,0.08)" }} />
+                      <div className="h-2.5 rounded animate-pulse w-4/5"
+                        style={{ background: "rgba(255,255,255,0.08)" }} />
+                      <div className="h-2 rounded animate-pulse w-1/2 mt-0.5"
+                        style={{ background: "rgba(255,255,255,0.05)" }} />
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : borrows.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 px-4 text-center">
               <div
                 className="w-10 h-10 rounded-2xl flex items-center justify-center"

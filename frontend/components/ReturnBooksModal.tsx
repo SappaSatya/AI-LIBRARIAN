@@ -38,22 +38,23 @@ export default function ReturnBooksModal({ onClose }: { onClose: () => void }) {
   }, [onClose]);
 
   async function fetchBorrows(g: string) {
+    const normalized = g.trim().toUpperCase();
+    setGNumber(normalized);
+    setStep("list");
     setFetching(true);
     setFetchErr("");
     try {
       const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-      const res = await fetch(`${API}/members/${g.trim().toUpperCase()}/borrows`);
+      const res = await fetch(`${API}/members/${normalized}/borrows`);
       if (!res.ok) {
+        setStep("id");
         setFetchErr("Student ID not found. Please check and try again.");
-        setFetching(false);
         return;
       }
       const data = await res.json();
-      const list: BorrowRecord[] = Array.isArray(data.borrows) ? data.borrows : [];
-      setBorrows(list);
-      setGNumber(g.trim().toUpperCase());
-      setStep("list");
+      setBorrows(Array.isArray(data.borrows) ? data.borrows : []);
     } catch {
+      setStep("id");
       setFetchErr("Could not reach the server. Is the backend running?");
     } finally {
       setFetching(false);
@@ -194,7 +195,27 @@ export default function ReturnBooksModal({ onClose }: { onClose: () => void }) {
         {/* ── STEP 2: Book list ── */}
         {step === "list" && (
           <div>
-            {borrows.length === 0 ? (
+            {fetching ? (
+              <ul className="flex flex-col">
+                {[0, 1, 2].map((i) => (
+                  <li key={i} className="flex items-center gap-3 px-5 py-3.5"
+                    style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div className="w-10 h-14 rounded-lg flex-shrink-0 animate-pulse"
+                      style={{ background: "rgba(255,255,255,0.07)" }} />
+                    <div className="flex-1 flex flex-col gap-2">
+                      <div className="h-3 rounded animate-pulse w-3/4"
+                        style={{ background: "rgba(255,255,255,0.08)" }} />
+                      <div className="h-3 rounded animate-pulse w-1/2"
+                        style={{ background: "rgba(255,255,255,0.08)" }} />
+                      <div className="h-2 rounded animate-pulse w-1/3"
+                        style={{ background: "rgba(255,255,255,0.05)" }} />
+                    </div>
+                    <div className="w-16 h-7 rounded-lg flex-shrink-0 animate-pulse"
+                      style={{ background: "rgba(255,255,255,0.06)" }} />
+                  </li>
+                ))}
+              </ul>
+            ) : borrows.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-14 px-6 text-center">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
                   style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>

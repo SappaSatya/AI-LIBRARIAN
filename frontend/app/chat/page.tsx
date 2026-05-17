@@ -18,11 +18,45 @@ interface Session {
 }
 
 const SUGGESTIONS = [
-  "Find books on machine learning",
-  "Where is Nineteen Eighty-Four?",
-  "Recommend history books",
-  "Books on climate change",
+  { label: "Mathematics",            icon: "∑"  },
+  { label: "Physics",                icon: "⚛"  },
+  { label: "Computer Science",       icon: "💻" },
+  { label: "English & Writing",      icon: "✍️" },
+  { label: "Electrical Engineering", icon: "⚡" },
+  { label: "Chemistry",              icon: "⚗️" },
+  { label: "Political Science",      icon: "🏛️" },
+  { label: "History",                icon: "📜" },
+  { label: "Biology",                icon: "🧬" },
+  { label: "Economics",              icon: "📈" },
+  { label: "Business",               icon: "💼" },
+  { label: "Philosophy",             icon: "🧠" },
+  { label: "Aerospace Engineering",  icon: "🚀" },
+  { label: "Environmental Science",  icon: "🌍" },
+  { label: "Neuroscience",           icon: "🧠" },
+  { label: "Mechanical Engineering", icon: "⚙️" },
+  { label: "Artificial Intelligence",icon: "🤖" },
+  { label: "Public Health",          icon: "🏥" },
+  { label: "Psychology",             icon: "🪞" },
+  { label: "Law",                    icon: "⚖️" },
+  { label: "Civil Engineering",      icon: "🏗️" },
+  { label: "Research Methods",       icon: "🔬" },
+  { label: "Bioengineering",         icon: "🧪" },
+  { label: "Data Science",           icon: "📊" },
+  { label: "Cybersecurity",          icon: "🔐" },
 ];
+
+function stripMarkdown(text: string) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/#{1,6}\s+/g, "")
+    .replace(/`[^`]*`/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/^[-*+]\s+/gm, "")
+    .replace(/^\d+\.\s+/gm, "")
+    .replace(/\n+/g, " ")
+    .trim();
+}
 
 export default function ChatPage() {
   const router = useRouter();
@@ -35,6 +69,10 @@ export default function ChatPage() {
   const [userName, setUserName]           = useState<string>("");
   const [gNumber, setGNumber]             = useState<string>("");
   const [activeBorrows, setActiveBorrows] = useState<number>(0);
+  const [voiceMode, setVoiceMode]         = useState(false);
+  const voiceModeRef      = useRef(false);
+  const startListeningRef = useRef<(() => Promise<void>) | null>(null);
+  useEffect(() => { voiceModeRef.current = voiceMode; }, [voiceMode]);
 
   function handleLogout() {
     localStorage.removeItem("lib_g_number");
@@ -123,10 +161,38 @@ export default function ChatPage() {
   }, []);
 
   const { status: voiceStatus, supported: voiceSupported, startListening, stopListening, speak, stopSpeaking } = useVoice({
-    onTranscript: async (text) => { const reply = await handleSend(text); if (reply) speak(reply); },
+    onTranscript: async (text) => {
+      const reply = await handleSend(text);
+      if (reply) speak(stripMarkdown(reply));
+    },
+    onSpeakEnd: () => {
+      if (voiceModeRef.current) setTimeout(() => startListeningRef.current?.(), 400);
+    },
   });
 
-  function startNewSession() { stopSpeaking(); setActiveSessionId(undefined); setInput(""); setError(null); }
+  useEffect(() => { startListeningRef.current = startListening; }, [startListening]);
+
+  function toggleVoiceMode() {
+    if (voiceModeRef.current) {
+      voiceModeRef.current = false;
+      setVoiceMode(false);
+      stopListening();
+      stopSpeaking();
+    } else {
+      voiceModeRef.current = true;
+      setVoiceMode(true);
+      startListening();
+    }
+  }
+
+  function startNewSession() {
+    voiceModeRef.current = false;
+    setVoiceMode(false);
+    stopSpeaking();
+    setActiveSessionId(undefined);
+    setInput("");
+    setError(null);
+  }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
@@ -285,17 +351,24 @@ export default function ChatPage() {
                   </div>
                 </div>
 
-                {/* Suggestion chips */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-lg">
-                  {SUGGESTIONS.map((s) => (
-                    <button key={s} onClick={() => handleSend(s)}
-                      className="text-left px-4 py-3 rounded-2xl text-sm transition-all active:scale-95"
-                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.55)" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(124,58,237,0.1)"; e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)"; e.currentTarget.style.color = "rgba(255,255,255,0.85)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.55)"; }}>
-                      {s}
-                    </button>
-                  ))}
+                {/* Category chips */}
+                <div className="flex flex-col items-center gap-3 w-full max-w-2xl">
+                  <p className="text-[11px] font-bold tracking-widest uppercase"
+                    style={{ color: "rgba(255,255,255,0.2)" }}>
+                    Browse by subject
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {SUGGESTIONS.map((s) => (
+                      <button key={s.label} onClick={() => handleSend(`Books on ${s.label}`)}
+                        className="flex items-center gap-1.5 text-xs font-medium px-3.5 py-1.5 rounded-full transition-all active:scale-95"
+                        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.45)" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(124,58,237,0.12)"; e.currentTarget.style.borderColor = "rgba(124,58,237,0.35)"; e.currentTarget.style.color = "#a78bfa"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.45)"; }}>
+                        <span>{s.icon}</span>
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -386,21 +459,29 @@ export default function ChatPage() {
             {/* Voice agent button */}
             {voiceSupported && (
               <button
-                onClick={isListening ? stopListening : startListening}
-                disabled={loading || isSpeaking}
-                title={isListening ? "Stop listening" : "Start voice agent"}
+                onClick={toggleVoiceMode}
+                disabled={loading}
+                title={voiceMode ? "Stop voice mode" : "Start voice conversation"}
                 className="flex items-center gap-1.5 px-3 h-11 rounded-2xl flex-shrink-0 transition-all disabled:opacity-30"
                 style={isListening
                   ? { background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.4)", color: "#f87171" }
                   : isSpeaking
-                  ? { background: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }
+                  ? { background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.4)", color: "#a78bfa" }
+                  : voiceMode
+                  ? { background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.35)", color: "#10b981" }
                   : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}
               >
                 {isListening ? (
-                  /* animated waveform when listening */
                   <span className="flex gap-0.5 items-end h-4">
                     {[60, 100, 70, 90, 55].map((h, i) => (
                       <span key={i} className="w-0.5 rounded-full animate-bounce bg-red-400"
+                        style={{ height: `${h}%`, animationDelay: `${i * 80}ms` }} />
+                    ))}
+                  </span>
+                ) : isSpeaking ? (
+                  <span className="flex gap-0.5 items-end h-4">
+                    {[55, 90, 70, 100, 60].map((h, i) => (
+                      <span key={i} className="w-0.5 rounded-full animate-bounce bg-violet-400"
                         style={{ height: `${h}%`, animationDelay: `${i * 80}ms` }} />
                     ))}
                   </span>
@@ -411,7 +492,7 @@ export default function ChatPage() {
                   </svg>
                 )}
                 <span className="text-[11px] font-semibold hidden sm:block">
-                  {isListening ? "Listening…" : isSpeaking ? "Speaking…" : "Voice"}
+                  {isListening ? "Listening…" : isSpeaking ? "Speaking…" : voiceMode ? "Voice On" : "Voice"}
                 </span>
               </button>
             )}

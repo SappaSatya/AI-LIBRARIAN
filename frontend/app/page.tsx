@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -67,11 +67,43 @@ const HOW_STEPS = [
 
 const GENRES = ["Fiction", "History", "Science", "Philosophy", "Technology", "Economics"];
 
+const STATS = [
+  { target: 8000, suffix: "+", label: "Books Indexed", color: "#a78bfa", rgb: "167,139,250" },
+  { target: 26,   suffix: "",  label: "Subjects",       color: "#22d3ee", rgb: "34,211,238"  },
+  { target: 7,    suffix: "",  label: "Day Loans",      color: "#f59e0b", rgb: "245,158,11"  },
+  { target: 3,    suffix: "",  label: "Book Limit",     color: "#34d399", rgb: "52,211,153"  },
+];
+
 export default function LandingPage() {
   const [modal, setModal]               = useState(false);
   const [quickSearch, setQuickSearch]   = useState(false);
   const [returnModal, setReturnModal]   = useState(false);
   const router = useRouter();
+
+  const statsRef      = useRef<HTMLDivElement>(null);
+  const [statsProgress, setStatsProgress] = useState(0);
+
+  useEffect(() => {
+    const el = statsRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        const start = performance.now();
+        const duration = 1600;
+        const tick = (now: number) => {
+          const t = Math.min((now - start) / duration, 1);
+          setStatsProgress(1 - Math.pow(1 - t, 3));
+          if (t < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      },
+      { threshold: 0.25 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const goToChat = useCallback(() => {
     const registered = typeof window !== "undefined" && !!localStorage.getItem("lib_g_number");
@@ -123,13 +155,11 @@ export default function LandingPage() {
                 px-4 py-2 rounded-lg hover:bg-white/[0.05] transition-all">
               Return Books
             </button>
-            {["Voice Agent", "Chat"].map((label) => (
-              <button key={label} onClick={goToChat}
-                className="text-xs font-medium text-white/40 hover:text-white/80
-                  px-4 py-2 rounded-lg hover:bg-white/[0.05] transition-all">
-                {label}
-              </button>
-            ))}
+            <button onClick={goToChat}
+              className="text-xs font-medium text-white/40 hover:text-white/80
+                px-4 py-2 rounded-lg hover:bg-white/[0.05] transition-all">
+              Start AI Chat
+            </button>
           </div>
 
           <div className="flex items-center gap-3 flex-shrink-0">
@@ -344,6 +374,31 @@ export default function LandingPage() {
         </div>
       </div>
 
+      {/* ════════════════ STATS ════════════════ */}
+      <section ref={statsRef} style={{ background: "linear-gradient(180deg,#040410 0%,#07031a 50%,#040410 100%)" }}>
+        <div className="max-w-5xl mx-auto px-6 py-20 grid grid-cols-2 md:grid-cols-4 gap-10">
+          {STATS.map(({ target, suffix, label, color, rgb }) => {
+            const n = Math.round(statsProgress * target);
+            const display = target >= 1000 ? n.toLocaleString() : String(n);
+            return (
+              <div key={label} className="flex flex-col items-center gap-2 text-center">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-1"
+                  style={{ background: `rgba(${rgb},0.08)`, border: `1px solid rgba(${rgb},0.18)` }}>
+                  <span className="w-2 h-2 rounded-full" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
+                </div>
+                <span className="text-4xl lg:text-5xl font-black tabular-nums" style={{ color }}>
+                  {display}{suffix}
+                </span>
+                <span className="text-xs font-semibold tracking-widest uppercase"
+                  style={{ color: "rgba(255,255,255,0.28)" }}>
+                  {label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       {/* ════════════════ COLLECTION ════════════════ */}
       <section style={{
         background: "linear-gradient(180deg,#040410 0%,#0a0620 40%,#040410 100%)",
@@ -481,71 +536,32 @@ export default function LandingPage() {
                 <div key={i} className="flex flex-col md:flex-row items-center flex-1 min-w-0">
 
                   {/* ── Step card ── */}
-                  <div className="group relative w-full rounded-2xl flex flex-col overflow-hidden
+                  <div className="w-full rounded-2xl px-6 py-7 flex flex-col gap-4
                     transition-all duration-300 hover:-translate-y-1"
                     style={{
-                      background: `linear-gradient(160deg,rgba(${step.rgb},0.09) 0%,rgba(6,3,20,0.7) 100%)`,
-                      border: `1px solid rgba(${step.rgb},0.18)`,
+                      background: "rgba(255,255,255,0.02)",
+                      border: "1px solid rgba(255,255,255,0.07)",
                     }}>
 
-                    {/* Top accent bar */}
-                    <div className="h-[2px]"
-                      style={{ background: `linear-gradient(90deg,transparent 0%,${step.color} 50%,transparent 100%)` }} />
-
-                    {/* Card header */}
-                    <div className="flex items-center gap-4 px-6 pt-6 pb-5"
-                      style={{ borderBottom: `1px solid rgba(${step.rgb},0.1)` }}>
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{
-                          background: `rgba(${step.rgb},0.1)`,
-                          border: `1px solid rgba(${step.rgb},0.22)`,
-                          boxShadow: `0 0 20px rgba(${step.rgb},0.08)`,
-                        }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5"
-                          style={{ color: step.color }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={step.icon}/>
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-[9px] font-bold tracking-[0.26em] uppercase mb-0.5"
-                          style={{ color: step.color }}>
-                          {String(i + 1).padStart(2, "0")} · {step.label}
-                        </p>
-                        <h3 className="text-[0.95rem] font-bold text-white leading-snug">{step.title}</h3>
-                      </div>
-                    </div>
-
-                    {/* Card body */}
-                    <div className="px-6 py-5 flex-1">
-                      <p className="text-sm leading-[1.8]" style={{ color: "rgba(255,255,255,0.35)" }}>
-                        {step.desc}
-                      </p>
-                    </div>
-
-                    {/* Card footer: engine badge */}
-                    <div className="px-6 py-4 flex items-center gap-2.5"
-                      style={{
-                        borderTop: `1px solid rgba(${step.rgb},0.09)`,
-                        background: `rgba(${step.rgb},0.03)`,
-                      }}>
-                      <span className="text-[9px] font-bold tracking-[0.22em] uppercase"
-                        style={{ color: "rgba(255,255,255,0.18)" }}>Engine</span>
-                      <span className="h-3 w-px" style={{ background: "rgba(255,255,255,0.08)" }} />
-                      <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg"
-                        style={{
-                          background: `rgba(${step.rgb},0.1)`,
-                          border: `1px solid rgba(${step.rgb},0.2)`,
-                          color: step.color,
-                        }}>
-                        {["OpenAI GPT-4o", "pgvector · cosine", "PostgreSQL"][i]}
+                    {/* Step label + icon */}
+                    <div className="flex items-center gap-2.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 flex-shrink-0"
+                        style={{ color: step.color }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d={step.icon}/>
+                      </svg>
+                      <span className="text-[10px] font-bold tracking-[0.24em] uppercase"
+                        style={{ color: step.color }}>
+                        {String(i + 1).padStart(2, "0")} · {step.label}
                       </span>
                     </div>
 
-                    {/* Watermark number */}
-                    <span className="absolute bottom-3 right-4 text-[88px] font-black select-none pointer-events-none"
-                      style={{ color: `rgba(${step.rgb},0.045)`, lineHeight: 1 }}>
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
+                    {/* Title + description */}
+                    <div className="flex flex-col gap-2">
+                      <h3 className="text-base font-bold text-white leading-snug">{step.title}</h3>
+                      <p className="text-sm leading-[1.8]" style={{ color: "rgba(255,255,255,0.34)" }}>
+                        {step.desc}
+                      </p>
+                    </div>
                   </div>
 
                   {/* ── Horizontal connector (desktop) ── */}
