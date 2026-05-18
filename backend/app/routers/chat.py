@@ -64,6 +64,7 @@ NEVER say "We don't have books on that" or "Nothing found in our collection". In
 """
 
 
+
 @router.post("", response_model=ChatResponse)
 def chat(request: ChatRequest, db: Session = Depends(get_db)):
     # Resolve or create session
@@ -94,20 +95,20 @@ def chat(request: ChatRequest, db: Session = Depends(get_db)):
 
     # Semantic search to find relevant books
     query_embedding = embed_text(request.message)
+    emb_literal = "[" + ",".join(str(x) for x in query_embedding) + "]"
     rows = db.execute(
         text(
-            """
-            SELECT id, 1 - (embedding <=> CAST(:emb AS vector)) AS similarity
+            f"""
+            SELECT id, 1 - (embedding <=> '{emb_literal}'::vector) AS similarity
             FROM books
             WHERE embedding IS NOT NULL
-            ORDER BY embedding <=> CAST(:emb AS vector)
-            LIMIT 3
+            ORDER BY embedding <=> '{emb_literal}'::vector
+            LIMIT 5
             """
-        ),
-        {"emb": str(query_embedding)},
+        )
     ).fetchall()
 
-    SIMILARITY_THRESHOLD = 0.75
+    SIMILARITY_THRESHOLD = 0.50
     INVALID_STATUSES = {"lost", "maintenance"}
 
     relevant_books = []
