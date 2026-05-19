@@ -142,7 +142,7 @@ export default function ChatPage() {
       setActiveSessionId(response.session_id);
       return response.reply;
     } catch {
-      setError("Could not reach the Library AI server. Is the backend running?");
+      setError("Server is waking up — please try again in 30 seconds.");
       setSessions((prev) => prev.filter((s) => s.id !== "__pending__"));
       setActiveSessionId(undefined);
     } finally {
