@@ -12,4 +12,4 @@ services:
       - key: OPENAI_API_KEY
         sync: false          # Set manually in Render dashboard
       - key: ALLOWED_ORIGINS
-        value: https://librarian-ai.vercel.app   # Update after Vercel deploy
+        value: https://ai-librarian-git-master-satya-harsha-sappa-s-projects.vercel.app
